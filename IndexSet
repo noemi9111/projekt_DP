@@ -1,0 +1,87 @@
+package zhlukovanie;
+
+import examples.task.Utils;
+import examples.task.Utils.ProgressLogger;
+import java.io.EOFException;
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.xml.stream.XMLStreamException;
+import org.jbowl.analysis.AnnotatedText;
+import org.jbowl.analysis.tokens.PorterStemmer;
+import org.jbowl.analysis.tokens.SimpleTokenizer;
+import org.jbowl.analysis.tokens.StopFilter;
+import org.jbowl.data.processing.InstanceInputStream;
+import org.jbowl.data.processing.InstanceOutputStream;
+import org.jbowl.data.processing.Statistics;
+import org.jbowl.data.processing.TFIDFFilter;
+import org.jbowl.document.processing.DocumentAnalyzer;
+import org.jbowl.document.processing.DocumentIndexer;
+import org.jbowl.document.xml.XMLDocumentIndexer;
+import org.jbowl.process.DataTarget;
+import org.jbowl.task.ProcessingException;
+import org.jbowl.util.HashIndexedSet;
+import org.jbowl.util.IndexedSet;
+
+public class IndexSet {
+   /*
+    static final String TFIDF_SCHEME = "ltc";
+
+    static DataTarget<AnnotatedText> createTextAnalyzer() {
+        return new SimpleTokenizer(new StopFilter(new PorterStemmer()));        //SimpleTokenizer ÄŤlenĂ­ text na slovĂˇ podla vĂ˝skytu alfanumerickĂ˝ch znakov, jeho parameter StopFilter odstrĂˇni neplnovĂ˝znam. slovĂˇ
+    }
+    
+     public static void main(String argv[]) {
+        try {
+            if (!new File("temp").exists()) {
+             new File("temp").mkdir();
+            }
+            
+            File tmp = File.createTempFile("tmp", null);
+            tmp.deleteOnExit();
+            
+            IndexedSet<String> terms = new HashIndexedSet<String>();                //Vytvoria sa objekty pre indexovacie mnoĹľiny termov, do ktorĂ˝ch sĂş jednotlivĂ© dokumenty zaradenĂ©
+            IndexedSet<String> categories = new HashIndexedSet<String>();
+            
+            Statistics inputStats = new Statistics(                                 //Deklaruje sa objekt pre vstupne statistiky. Argument funkcie instanceOutputStream je docasny subor, ktory sluzi na priebezne ukladanie udajov pocas indexacie */
+                 /*  new Utils.ProgressLogger(
+                            new InstanceOutputStream("tmp")));
+            
+            
+            XMLDocumentIndexer indexer = new XMLDocumentIndexer(                    //Vytvori sa indexovaci objekt, vstupnym parametrom je nastavenie predspracovania a jazyk. analyzy implementovane v funkcie createTextAnalyzer
+                    new DocumentAnalyzer(createTextAnalyzer(),
+                            new DocumentIndexer(terms, categories, inputStats)));                       //Dalsie vstupne parametre su indexovacie mnoziny termov terms  a objekt inputStats pre vystupne statistiky
+            
+            
+            indexer.indexFile("data/Reuters-21578 ModApte/train.xml");              //Vykona sa indexacia, zo zdrojoveho suboru
+            indexer.close();
+            
+            System.out.println("'" + TFIDF_SCHEME + " vahovacia schema termov:");
+            
+            
+            new InstanceInputStream(tmp).processAll(                                //Nacitame vstupy z docasneho suboru 
+                new TFIDFFilter(TFIDF_SCHEME, inputStats,                       //Aplikuje sa alg. vahovania a normovania podlaa nastavenia premennej TFIDF_scheme
+                new Utils.ProgressLogger(
+                new InstanceOutputStream("temp/input-instances"))));            //Vysledna matica sa ulozi v kodovanom tvare do suboru temp/input-instances
+           //Vysledna matica sa ulozi v kodovanom tvare do suboru temp/input-instances
+            
+            Utils.writeObject(inputStats,"temp/input-stats");                       //Index termov terms a vypocitane statistiky inputStats sa ulozia do suborov cez funkciu writeObject
+            Utils.writeObject(terms,"temp/term-dictionary");
+            
+            Utils.printTermStats(inputStats, terms, "temp/term-input-stats.txt");   //ulozenie citatelneho vypisu
+            
+            
+            System.out.println("PoÄŤet termov:" + inputStats.numOfTerms());
+            System.out.println("PoÄŤet dokumentov celkovo:" + inputStats.numOfInstances());
+        } catch (IOException ex) {
+            Logger.getLogger(IndexSet.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (XMLStreamException ex) {
+            Logger.getLogger(IndexSet.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ProcessingException ex) {
+            Logger.getLogger(IndexSet.class.getName()).log(Level.SEVERE, null, ex);
+        }
+       
+    }  
+  */  
+}
