@@ -1,0 +1,140 @@
+package zhlukovanie;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import org.gridgain.grid.*;
+import java.util.*;
+import org.jbowl.util.*;
+import org.jbowl.task.*;
+import org.jbowl.data.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.gridgain.grid.logger.GridLogger;
+import org.gridgain.grid.resources.GridLoggerResource;
+import org.jbowl.data.Instances;
+import org.jbowl.task.BuildModelTask;
+import org.jbowl.model.unsupervised.kmeans.KMeansSettings;
+import org.gridgain.grid.GridException;
+import org.jbowl.data.processing.InstanceInputStream;
+import org.jbowl.data.processing.Statistics;
+import org.jbowl.model.descriptive.LabelingModel;
+import org.jbowl.model.supervised.ClassificationModel;
+import org.jbowl.task.Connection;
+import org.jbowl.task.ConnectionFactory;
+import org.jbowl.task.ExecutionHandler;
+import org.jbowl.task.ProcessingException;
+import org.jbowl.task.executor.TaskExecutor;
+import org.jbowl.util.IndexedSet;
+import org.jbowl.util.matrix.DoubleFactory1D;
+import org.jbowl.util.matrix.DoubleMatrix1D;
+import zhlukovanie.ZhlukovanieImpl;
+
+@GridTaskName("ZhlukovanieTask")
+
+public class ZhlukovanieTask extends GridTaskSplitAdapter<Instances, List> {
+
+    //private List<List<Integer>> distance=new ArrayList<>();
+    @GridLoggerResource
+    private GridLogger log = null;
+
+    public int c = 0;
+    public int zac = 0;
+    public int kon = 0;
+    public int zac_k = 0;
+    public int kon_k = 0;
+
+    protected List<DoubleMatrix1D> initialize(Instances instances, KMeansSettings settings) {
+        List<DoubleMatrix1D> centroids;
+
+        if (settings.getInputModel() != null) {
+            centroids = settings.getInputModel().getCentroids();
+        } else {
+            centroids = new ArrayList<DoubleMatrix1D>();
+
+            for (int i = 0; i < settings.getK() && i < instances.size(); i++) {
+                DoubleMatrix1D vector = instances.get(i).values();
+                centroids.add(DoubleFactory1D.denseMatrix(vector.size()).
+                        assign(vector));
+            }
+        }
+        return centroids;
+    }
+
+    @Override
+    public Collection<? extends GridJob> split(final int gridSize, final Instances instances) {
+        List<GridJob> jobs = new ArrayList<GridJob>(gridSize);
+
+        final KMeansSettings settings = new KMeansSettings();
+        final int documentsPerTask = instances.size() / gridSize;
+
+        settings.setK(6);
+        //System.out.println("nulta: " + instances.get(0));
+        //System.out.println("prva: " + instances.get(545645345));
+
+        final int KPerTask = settings.getK() / gridSize;
+
+        System.out.println("pocet uzlov: " + gridSize);
+        System.out.println("pocet dokumentov na uzol: " + documentsPerTask);
+        System.out.println("K (" + settings.getK() + ") na uzol: " + KPerTask);
+
+        BuildModelTask task = new BuildModelTask();
+
+        task.setAlgorithm("org.jbowl.model.unsupervised.kmeans.KMeansAlgorithm");
+
+        task.setBuildSettings(settings);
+
+        task.setModelName("temp/modelKmeans");
+
+        final List<DoubleMatrix1D> centroids = initialize(instances, settings);
+
+        System.out.println("pocet centroidov: " + centroids.size());
+
+        for (c = 0; c < gridSize; c++) {
+
+            System.out.println("C: " + c);
+
+            //zac = 0;
+            //kon = 1067;
+            zac = documentsPerTask * (c);
+            kon = gridSize - (c) == 1 ? (instances.size() - 1) : (documentsPerTask * (c + 1) - 1);
+                //kon = (1) * documentsPerTask - 1;
+
+            //zac_k = 0;
+            //kon_k = 5;
+            zac_k = KPerTask * (c);
+            kon_k = gridSize - (c) == 1 ? (settings.getK() - 1) : (KPerTask * (c + 1) - 1);
+
+            System.out.println("hodnota zac: " + zac);
+            System.out.println("hodnota kon: " + kon);
+            System.out.println("hodnota zac_k: " + zac_k);
+            System.out.println("hodnota kon_k: " + kon_k);
+
+            jobs.add(new GridJobAdapterEx() {
+
+                @Override
+                public List execute() throws GridException {
+                    //Instances localInstances = getArgument().getInstances();
+
+                    System.out.println("zapisujem");
+                    ZhlukovanieImpl objekt = new ZhlukovanieImpl();
+                    return (List) objekt.build(instances, centroids, settings, zac, kon, zac_k, kon_k);
+
+                }
+            });
+        }
+        return jobs;
+    }
+
+    @Override
+    public List reduce(List<GridJobResult> results) throws GridException {
+        for (GridJobResult res : results) {
+            if (res.getData() != null) {
+                return res.getData();
+            }
+
+        }
+        return null;
+    }
+}
