@@ -1,0 +1,103 @@
+package zhlukovanie;
+
+import java.io.IOException;
+import static javax.swing.text.html.HTML.Tag.S;
+import org.gridgain.grid.typedef.internal.S;
+import org.jbowl.data.CategorySet;
+import org.jbowl.data.Instances;
+import org.jbowl.data.VectorInstance;
+import org.jbowl.data.processing.InstanceInputStream;
+import org.jbowl.model.*;
+import org.jbowl.model.descriptive.*;
+import org.jbowl.model.supervised.*;
+import org.jbowl.model.unsupervised.*;
+import zhlukovanie.ZhlukovanieTask;
+import org.jbowl.model.unsupervised.kmeans.KMeansSettings;
+import org.jbowl.util.IndexedSet;
+import org.jbowl.util.math.IntDoubleFunction;
+import org.jbowl.util.matrix.DoubleMatrix1D;
+import static scala.xml.dtd.ContentModelParser.S;
+
+
+
+public class EvaluateModel {
+    
+    //private static Object terms;
+    
+    public EvaluateModel() throws IOException, ClassNotFoundException {
+        /*
+        
+        ClassificationModel classifier = (ClassificationModel)                  //proces klasifikacie, objekt classifier sa inicializuje na exist. zhlukovaci model
+                Utils.readObject("temp/modelKmeans");
+        
+        LabelingModel labelingOfKmeansModel = (LabelingModel)                   //vytvori sa objekt popisneho modelu labelingOfKmeansModel
+                Utils.readObject("temp/labelingOfKmeansModel");                 //inicializuje sa na exist. popisny model vytvoreny k modelu zhlukovania
+        
+        Instances instances = new Instances(new                                 //deklaruje sa zoznam indexovacich instancii, dokumenty su uz indexovane
+            InstanceInputStream("temp/input-instances")); 
+        
+        IndexedSet<String> terms = (IndexedSet<String>)                             //do premennej terms sa nacita slovnik termov
+                        Utils.readObject("temp/term-dictionary");
+        
+        for (VectorInstance instance : instances) {                             //classifier.classify vykona klasifikaciu jedneho vektora, vrati zoznam classification identifikatorov kategorii, do kt. bol dokument klasifikovany
+            CategorySet classification = classifier.classify(instance);
+            for(int i = 0; i < classification.size(); i++) {
+                System.out.println("Dokument: " + instance.getSignature());
+                int cat = classification.get(i);
+                System.out.println("Klasifikacna trieda: " + cat);
+                int selectedTerms[] = labelingOfKmeansModel.getSelectedTerms(cat);
+                
+                for(int j = 0; j < selectedTerms.length; j++) {
+                    
+                    System.out.print(terms.get(selectedTerms[j]) + 
+                            "[" + labelingOfKmeansModel.getTermEvaluator().getScore(selectedTerms[j], cat) + "] ");
+                }
+            }
+            System.out.println();
+        }
+        
+        
+    /*
+    private Object scores;
+    private Object settings;
+    
+    public interface LabelingBuildSettings<M extends KMeansModel> extends BuildSettings {
+
+    M getInputModel();
+
+    void setInputModel(M model);
+}
+
+    public EvaluateControl(DoubleMatrix1D scores, S settings) {
+        this.scores = scores;
+        this.settings = settings;
+    }
+
+    public S getBuildSettings() {
+        return settings;
+    }
+
+    public int numOfCategories() {
+        return scores.rows();
+    }
+
+
+    
+    public int[] getSelectedTerms(int zhlukovanie) {
+       
+        final int terms[] = new int[scores.viewRow(zhlukovanie).cardinality()];
+
+        scores.viewRow(zhlukovanie).forEachNonZero(new IntDoubleFunction() {
+            int i = 0;
+            @Override
+            public double apply(int index, double value) {
+                terms[i++] = index;
+                return value;
+            }
+        });
+
+        return terms;
+    }
+  */  
+  }
+}
