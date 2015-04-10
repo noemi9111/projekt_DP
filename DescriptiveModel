@@ -1,0 +1,83 @@
+package zhlukovanie;
+
+import examples.task.Utils;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.jbowl.data.processing.InstanceInputStream;
+import org.jbowl.data.processing.Statistics;
+import org.jbowl.model.supervised.ClassificationModel;
+import org.jbowl.task.BuildModelTask;
+import org.jbowl.data.termselection.InfoGainEvaluator;
+import org.jbowl.model.BuildSettings;
+import org.jbowl.model.descriptive.*;
+import org.jbowl.task.Connection;
+import org.jbowl.task.ConnectionFactory;
+import org.jbowl.task.ExecutionHandler;
+import org.jbowl.task.executor.TaskExecutor;
+import org.jbowl.util.IndexedSet;
+
+public class DescriptiveModel implements BuildSettings {
+/*
+    private static Object labelingOfKMeansModel;
+    
+
+    public static void main() throws Exception {
+
+        BuildModelTask taskLabeling = new BuildModelTask();                         //inicializuje sa objekt taskLabeling reprezent. ulohu vytvorenia popisneho modelu
+    
+  
+        ClassificationModel modelForLabeling = (ClassificationModel)                //deklaruje sa objekt modelForLabeling , inicializuje sa na exist. zhlukovaci model 
+            Utils.readObject("temp/modelKmeans");                                   //vstupny parameter funkcie readObject objektu Utils je fyzicka cesta k suboru, ktory obsahuje zhlukovaci model
+
+        DescriptiveModel settingsLabeling = new DescriptiveModel();                 //vytvori sa objekt settingsLabeling, ktory reprezentuje parametre tvorby popisneho modelu
+        settingsLabeling.setInputModel(modelForLabeling);
+        //settingsLabeling.setMaxNumOfTerms(10));
+        settingsLabeling.setEvaluator("org.jbowl.data.termselection.InfoGainEvaluator");    
+    
+        taskLabeling.setAlgorithm("org.jbowl.model.descriptive.LabelingModel");     //vytvorenie popisneho modelu zhlukov pre existujuci model zhlukovania, inicializuje sa objekt taksLabeling
+        taskLabeling.setBuildData(new InstanceInputStream("temp/input-instances")); //nastavi sa cesta k suboru, ktory obsahuje maticu term-dokumment
+        taskLabeling.setBuildSettings(settingsLabeling);                            //nastavia sa parametre popisneho algoritmu
+        taskLabeling.setModelName("temp/labelingOfKmeansModel");                    //nastavi sa cesta k suboru, do kt. sa zapise vytvoreny popisny model
+    
+        Connection connLabeling = ConnectionFactory.createFactory().getConnection();//ziska sa pripojenie na vykonavaci objekt
+        ExecutionHandler handlerLabeling = 
+            connLabeling.execute(taskLabeling);
+        handlerLabeling.waitForCompletion();
+    
+        LabelingModel labelingOfKmeansModel = (LabelingModel)                       //zo suboru sa nacita popisny model a inicializuje sa objektova reprezentacia moelu labelingOfKmeansModel
+            Utils.readObject("temp/labelingOfKmeansModel");
+    
+        IndexedSet<String> terms = (IndexedSet<String>)                             //do premennej terms sa nacita slovnik termov
+            Utils.readObject("temp/term-dictionary");
+    
+        Statistics stats = labelingOfKmeansModel.getStatistics();                   //do premennej stats sa nacitaju vstupne statistiky
+    
+        System.out.println("KMeans vystup - popisane zhluky:");                 
+        for(int i = 0; i < labelingOfKmeansModel.numOfCategories(); i++) {          //vypis jednotlivych zhlukov, ku kazdemu sa zobrazi zoznam termov a ich vah
+            System.out.println("Zhluk " + i + " (" + stats.categoryFrequency(i) +" vektorov)");
+            System.out.print("\t Termy [vahy]: ");
+            int selectedTerms[] = 
+                    labelingOfKMeansModel.getSelectedTerms(i);
+            for(int j = 0; j < selectedTerms.length; j++){
+                System.out.print(terms.get(selectedTerms[j]) + "[" 
+                        + labelingOfKmeansModel.getTermEvaluator()
+                        .getScore(selectedTerms[j], i) +"] ");
+                }
+                System.out.println();       
+            }
+        TaskExecutor.shutdown();                                                    //uvolni sa vykonavaci objekt
+    }
+
+    
+
+    private void setEvaluator(String orgjbowldatatermselectionInfoGainEvaluato) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private void setInputModel(ClassificationModel modelForLabeling) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+  */
+}
