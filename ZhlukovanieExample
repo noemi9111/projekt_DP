@@ -1,0 +1,87 @@
+package zhlukovanie;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import org.gridgain.grid.util.GridUtils;
+import org.gridgain.grid.*;
+import org.gridgain.grid.typedef.*;
+import org.jbowl.data.Instances;
+import org.jbowl.data.*;
+import org.jbowl.data.processing.InstanceInputStream;
+import org.jbowl.model.BuildSettings;
+import org.jbowl.model.unsupervised.kmeans.KMeansSettings;
+import org.jbowl.task.*;
+import org.jbowl.util.*;
+import org.jbowl.task.BuildModelTask;
+import org.jbowl.task.Connection;
+import org.jbowl.task.ConnectionFactory;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import zhlukovanie.ZhlukovanieTask;
+
+public final class ZhlukovanieExample {
+
+    public static void main(String[] args) throws GridException, Exception {
+
+        //Grid grid = args.length == 0 ? G.start() : G.start(args[0]);
+        BuildModelTask task = new BuildModelTask();
+
+        // temp-reuters/train-instances - indexovana datova mnozina Reuters
+        // temp-medline/train-instances - indexovana datova mnozina MEDLINE
+        // temp-medline/model - ciel pre ulozenie vektorovej reprezentacie kolekcie MEDLINE
+        // temp-reuters/model - ciel pre ulozenie vektorovej reprezentacie kolekcie Reuters
+        task.setAlgorithm("org.jbowl.model.unsupervised.kmeans.KmeansAlgorithm");
+        task.setBuildData(new InstanceInputStream("temp/train-instances"));
+        InstanceInputStream cesta = new InstanceInputStream("temp/train-instances");
+        //task.setBuildData(new InstanceInputStream("temp/input-instances"));
+        //InstanceInputStream cesta = new InstanceInputStream("temp/input-instances");
+        //task.setBuildSettings(settings);
+
+        //task.setModelName("temp/model");
+        Connection conn = ConnectionFactory.createFactory().getConnection();
+
+        Instances instances = new Instances(new InstanceInputStream("temp/train-instances"));
+
+        int numOfDocuments = instances.size();
+
+        try {
+            Grid grid = G.start();
+
+            //new IndexSet();
+            System.out.println("\nPocet dokumentov je: " + numOfDocuments);
+
+            GridTaskFuture<List> fut = grid.execute(ZhlukovanieTask.class, instances);
+
+            //int phraseLen = fut.get();
+            //System.out.println("\n>>> Koniec zhlukovania <<<");
+            //Thread.sleep(5000);
+            System.out.println("");
+            System.out.println("vypis get:" + fut.get().size());
+            List vystup = fut.get();
+            System.out.println("vypis get:");
+            vystup.get(0);
+            System.out.println("vypis get:" + vystup.get(0).toString());
+            System.out.println("vypis size:" + vystup.size());
+            System.out.println("zapisujem");
+
+            ObjectOutputStream out = null; // preskusat ze ako uklada model, ked su 2 uzly ci do suboru za seba a ked ano, presunut zapis za cyklus
+            try {
+                out = new ObjectOutputStream(new FileOutputStream("temp/modelKMeans"));
+            } catch (IOException ex) {
+                Logger.getLogger(ZhlukovanieTask.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            try {
+                out.writeChars("**********nova stanica************");
+                System.out.println("zapisujem");
+                out.writeObject(vystup);
+            } catch (IOException ex) {
+                Logger.getLogger(ZhlukovanieTask.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        } finally {
+            G.stop(true);
+        }
+    }
+}
