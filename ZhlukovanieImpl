@@ -1,0 +1,164 @@
+package zhlukovanie;
+
+import java.util.*;
+import java.util.logging.*;
+
+import org.jbowl.data.*;
+
+import org.jbowl.task.*;
+
+import org.jbowl.model.*;
+import org.jbowl.model.unsupervised.kmeans.KMeansModel;
+import org.jbowl.model.unsupervised.kmeans.KMeansSettings;
+import org.jbowl.util.math.*;
+import org.jbowl.util.matrix.*;
+import zhlukovanie.ZhlukovanieTask;
+
+public class ZhlukovanieImpl implements Algorithm<KMeansModel, KMeansSettings> {
+    protected static final Logger log = Logger.getLogger("org.jbowl.model.unsupervised.kmeans");
+
+    private static final BLAS blas = BLASFactory.getDefaultInstance();
+   
+
+    public List<KMeansModel> build(Instances instances, List<DoubleMatrix1D> centroids, KMeansSettings settings, int zac, int kon, int zac_k, int kon_k) {
+        int c;
+        
+       //List<DoubleMatrix1D> centroids = initialize(instances, settings);
+        
+        // orezat centroidy od zack po konk
+        
+        List<DoubleMatrix1D> centroids_cut = centroids.subList(zac_k, kon_k + 1);
+        
+        
+        System.out.println("pocet centroidov pred:" + centroids.size());
+      
+        System.out.println("pocet centroidov po:" + centroids_cut.size());
+        
+        //System.out.println("pocet centroidov po:" + centroids_cut.get(1));
+       
+        
+        int [] counts = new int[centroids.size()];
+        int [] indices = new int[instances.size()];
+       
+        //int counts[] = new int [centroids.size()]; 
+        //int indices[] = new int[instances.size()]; 
+
+        //premenna start - ulozi sa cas zaciatku podulohy
+        long start = System.currentTimeMillis();
+        
+        for (c = 0; c < settings.getMaxNumberOfCycles() || settings.getMaxNumberOfCycles() == -1; c++) {
+            
+               /* 
+                System.out.println(".hodnota zac: " + zac);
+                System.out.println(".hodnota kon: " + kon);
+                System.out.println(".hodnota zac_k: " + zac_k);
+                System.out.println(".hodnota kon_k: " + kon_k);
+               */
+            int numOfChanges = classify(indices, instances, centroids_cut, settings.getSimilarity(), zac, kon, zac_k, kon_k);
+
+            log.info(c+"#: " + numOfChanges + "/" + instances.size());
+
+            if (numOfChanges == 0) {
+                break;
+            }
+
+            for (DoubleMatrix1D centroid : centroids_cut) {
+                centroid.clear();
+            }
+ // iterovat len cez zac kon instancie
+            for (int i = zac; i < kon; i++) {
+                blas.daxpy(1, instances.get(i).values(), centroids_cut.get(indices[i]));
+                counts[indices[i]]++;
+            }
+
+            for (int k = 0; k < centroids_cut.size(); k++) {
+                blas.dscal(1d / counts[k], centroids_cut.get(k));
+            }
+        }
+
+        log.info("#iter: " + c);
+        
+       //vrati cas potrebny na vytvorenie ciastocneho modelu v zadanom rozsahu
+        long totalTime = System.currentTimeMillis() - start;
+        
+        System.out.println("\n>>> Spracovane zmeny na tejto stanici: " + zac + " - " + kon + " z celkoveho poctu " +instances.size());
+        System.out.println("\n>>> Cas trvania ulohy na tejto stanici: " + totalTime + " ms\n");
+        
+        List list = new ArrayList();
+        if (settings.getInputModel() != null) {
+            list.add(settings.getInputModel());
+            return list;
+        } else {
+            list.add(new KMeansModel(centroids, settings));
+            return list;
+        }
+    }
+  
+
+    protected List<DoubleMatrix1D> initialize(Instances instances,KMeansSettings settings) {
+        List<DoubleMatrix1D> centroids;
+
+        if (settings.getInputModel() != null) {
+            centroids = settings.getInputModel().getCentroids();
+        } else {
+            centroids = new ArrayList<DoubleMatrix1D>();
+
+            for (int i = 0; i < settings.getK() && i < instances.size(); i++) {
+                DoubleMatrix1D vector = instances.get(i).values();
+                centroids.add(DoubleFactory1D.denseMatrix(vector.size()).
+                        assign(vector));
+            }
+        }
+        
+
+        return centroids;
+    }
+
+    private int classify(int indices[], Instances instances, List<DoubleMatrix1D> centroids, Similarity similarity, int zac, int kon, int zac_k, int kon_k) {
+        int numOfChanges = 0;
+
+        for (int i = zac; i <= kon; i++) {
+            //System.out.println("aktualne i:" + i);
+            VectorInstance instance = instances.get(i);
+
+            int nearest = -1;
+            double maxSim = 0;
+            
+            int count_centroids = centroids.size();
+            //System.out.println("pocet centroidov:" + count_centroids + " koniec je:" + kon_k);
+            for (int k = 0; k < count_centroids; k++) {
+                  //System.out.println("aktualne k: " + k + "centroidy: " + centroids.size());
+                  double sim = similarity.function(instance.values(), centroids.get(k));
+                     
+                if (nearest == -1 || maxSim < sim) {
+                    nearest = k;
+                    maxSim = sim;
+                }
+            }
+
+            if (nearest != -1) {
+                if (indices[i] != nearest) {
+                    numOfChanges++;
+                }
+
+                indices[i] = nearest;
+            }
+        }
+
+        return numOfChanges;
+    }
+/*
+    List build(Integer c, Instances instances, KMeansSettings settings, int zac, int kon, int zac_k, int kon_k) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }*/
+
+    @Override
+    public KMeansModel build(Instances i, KMeansSettings s) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private int classify(int[] indices, Instances instances, List<DoubleMatrix1D> centroids, Similarity similarity) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+}
